@@ -41,10 +41,13 @@ export type State = {
 };
 
 export class NFA {
-  constructor(start: State) {}
+  public start: State;
+  constructor(start: State) {
+    this.start = start;
+  }
 
   public recognizes(s: string): boolean {
-    return false;
+    return this.recognizeDfs(this.start, s, 0);
   }
 
   public concat(x: NFA): NFA {
@@ -58,5 +61,25 @@ export class NFA {
   /** Concatenate this machine with itself n times.*/
   public pow(n: number): NFA {
     throw "not done";
+  }
+
+  private recognizeDfs(state: State, s: string, i: number): boolean {
+    if(i === s.length) {
+      return !!state.accept;
+    }
+
+    for(const t of state.transitions ?? []) {
+      if(t.letter === 'ε') {
+        if(this.recognizeDfs(t.state, s, i)) {
+          return true;
+        }
+      } else if(t.letter === s.charAt(i)) {
+        if(this.recognizeDfs(t.state, s, i+1)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }

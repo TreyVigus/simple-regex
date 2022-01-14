@@ -229,6 +229,22 @@ Deno.test("concat 3", () => {
   assertEquals(m1.recognizes("bbbbbbbbbbb"), false);
 });
 
+Deno.test("infinite loop machine", () => {
+  const s1: State = {start: true, accept: true};
+  const s2: State = {};
+  s1.transitions = [
+    {letter: 'ε', state: s2}
+  ];
+  s2.transitions = [
+    {letter: 'ε', state: s1}
+  ];
+  const m = new NFA(s1);
+  assertEquals(m.recognizes(''), true);
+  assertEquals(m.recognizes("bbbbbbbbbbb"), false);
+  assertEquals(m.recognizes("a"), false);
+  assertEquals(m.recognizes("zafs"), false);
+});
+
 //machine that recognizes all strings from {a} containing an even number of a's
 function evenMachine(): NFA {
   const q2: State = { start: true, accept: true };
