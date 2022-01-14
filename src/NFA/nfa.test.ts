@@ -1,24 +1,24 @@
 import { emptyMachine, oneLetterMachine } from "./nfaFactory.ts";
-import { assertEquals } from "../../deps.ts";
+import { asserts } from "../../deps.ts";
 import { NFA, State } from "./nfa.ts";
 
 Deno.test("emptyMachine", () => {
   const m = emptyMachine();
-  assertEquals(m.recognizes(""), true);
-  assertEquals(m.recognizes("q"), false);
-  assertEquals(m.recognizes("qd"), false);
-  assertEquals(m.recognizes("qq"), false);
-  assertEquals(m.recognizes("a"), false);
-  assertEquals(m.recognizes("vvaarwf"), false);
+  asserts.assertEquals(m.recognizes(""), true);
+  asserts.assertEquals(m.recognizes("q"), false);
+  asserts.assertEquals(m.recognizes("qd"), false);
+  asserts.assertEquals(m.recognizes("qq"), false);
+  asserts.assertEquals(m.recognizes("a"), false);
+  asserts.assertEquals(m.recognizes("vvaarwf"), false);
 });
 
 Deno.test("oneLetterMachine", () => {
   const m = oneLetterMachine("q");
-  assertEquals(m.recognizes("q"), true);
-  assertEquals(m.recognizes(""), false);
-  assertEquals(m.recognizes("qd"), false);
-  assertEquals(m.recognizes("qq"), false);
-  assertEquals(m.recognizes("a"), false);
+  asserts.assertEquals(m.recognizes("q"), true);
+  asserts.assertEquals(m.recognizes(""), false);
+  asserts.assertEquals(m.recognizes("qd"), false);
+  asserts.assertEquals(m.recognizes("qq"), false);
+  asserts.assertEquals(m.recognizes("a"), false);
 });
 
 Deno.test("sipster page 51", () => {
@@ -44,67 +44,67 @@ Deno.test("sipster page 51", () => {
   ];
 
   const m = new NFA(q1);
-  assertEquals(m.recognizes("aaabaa"), true);
-  assertEquals(m.recognizes("baa"), true);
-  assertEquals(m.recognizes("bab"), true);
-  assertEquals(m.recognizes("b"), false);
-  assertEquals(m.recognizes("ab"), false);
-  assertEquals(m.recognizes("aabb"), false);
-  assertEquals(m.recognizes("bbbbbbbabb"), false);
+  asserts.assertEquals(m.recognizes("aaabaa"), true);
+  asserts.assertEquals(m.recognizes("baa"), true);
+  asserts.assertEquals(m.recognizes("bab"), true);
+  asserts.assertEquals(m.recognizes("b"), false);
+  asserts.assertEquals(m.recognizes("ab"), false);
+  asserts.assertEquals(m.recognizes("aabb"), false);
+  asserts.assertEquals(m.recognizes("bbbbbbbabb"), false);
 });
 
 Deno.test("sipster page 52 even", () => {
   const m = evenMachine();
-  assertEquals(m.recognizes(""), true);
-  assertEquals(m.recognizes("aa"), true);
-  assertEquals(m.recognizes("aaaa"), true);
-  assertEquals(m.recognizes("aaaaaaaa"), true);
-  assertEquals(m.recognizes("a"), false);
-  assertEquals(m.recognizes("aaa"), false);
-  assertEquals(m.recognizes("aaaaa"), false);
-  assertEquals(m.recognizes("aaaaaaaaa"), false);
-  assertEquals(m.recognizes("bbaaaa"), false);
+  asserts.assertEquals(m.recognizes(""), true);
+  asserts.assertEquals(m.recognizes("aa"), true);
+  asserts.assertEquals(m.recognizes("aaaa"), true);
+  asserts.assertEquals(m.recognizes("aaaaaaaa"), true);
+  asserts.assertEquals(m.recognizes("a"), false);
+  asserts.assertEquals(m.recognizes("aaa"), false);
+  asserts.assertEquals(m.recognizes("aaaaa"), false);
+  asserts.assertEquals(m.recognizes("aaaaaaaaa"), false);
+  asserts.assertEquals(m.recognizes("bbaaaa"), false);
 });
 
 Deno.test("sipster page 52 mult 3", () => {
   const m = mult3Machine();
-  assertEquals(m.recognizes("a"), false);
-  assertEquals(m.recognizes("aa"), false);
-  assertEquals(m.recognizes("aaa"), true);
-  assertEquals(m.recognizes("aaaa"), false);
-  assertEquals(m.recognizes("aaaaa"), false);
-  assertEquals(m.recognizes("aaaaaa"), true);
-  assertEquals(m.recognizes("abaaaa"), false);
+  asserts.assertEquals(m.recognizes("a"), false);
+  asserts.assertEquals(m.recognizes("aa"), false);
+  asserts.assertEquals(m.recognizes("aaa"), true);
+  asserts.assertEquals(m.recognizes("aaaa"), false);
+  asserts.assertEquals(m.recognizes("aaaaa"), false);
+  asserts.assertEquals(m.recognizes("aaaaaa"), true);
+  asserts.assertEquals(m.recognizes("abaaaa"), false);
 });
 
 Deno.test("sipster page 52 union", () => {
   const m1 = mult3Machine();
   const m2 = evenMachine();
   const union = m1.union(m2);
-  assertEquals(union.recognizes("a"), false);
-  assertEquals(union.recognizes("aa"), true);
-  assertEquals(union.recognizes("aaa"), true);
-  assertEquals(union.recognizes("aaaa"), true);
-  assertEquals(union.recognizes("aaaaa"), false);
-  assertEquals(union.recognizes("aaaaaa"), true);
-  assertEquals(union.recognizes("aaaaaa"), true);
-  assertEquals(union.recognizes("aaaaaaa"), false);
-  assertEquals(union.recognizes("b"), false);
+  asserts.assertEquals(union.recognizes("a"), false);
+  asserts.assertEquals(union.recognizes("aa"), true);
+  asserts.assertEquals(union.recognizes("aaa"), true);
+  asserts.assertEquals(union.recognizes("aaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaa"), false);
+  asserts.assertEquals(union.recognizes("aaaaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaaaa"), false);
+  asserts.assertEquals(union.recognizes("b"), false);
 });
 
 Deno.test("sipster page 52 union (reverse)", () => {
   const m1 = mult3Machine();
   const m2 = evenMachine();
   const union = m2.union(m1);
-  assertEquals(union.recognizes("a"), false);
-  assertEquals(union.recognizes("aa"), true);
-  assertEquals(union.recognizes("aaa"), true);
-  assertEquals(union.recognizes("aaaa"), true);
-  assertEquals(union.recognizes("aaaaa"), false);
-  assertEquals(union.recognizes("aaaaaa"), true);
-  assertEquals(union.recognizes("aaaaaa"), true);
-  assertEquals(union.recognizes("aaaaaaa"), false);
-  assertEquals(union.recognizes("b"), false);
+  asserts.assertEquals(union.recognizes("a"), false);
+  asserts.assertEquals(union.recognizes("aa"), true);
+  asserts.assertEquals(union.recognizes("aaa"), true);
+  asserts.assertEquals(union.recognizes("aaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaa"), false);
+  asserts.assertEquals(union.recognizes("aaaaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaaaa"), false);
+  asserts.assertEquals(union.recognizes("b"), false);
 });
 
 Deno.test("sipster page 53", () => {
@@ -128,13 +128,13 @@ Deno.test("sipster page 53", () => {
   ];
 
   const m = new NFA(q1);
-  assertEquals(m.recognizes(""), true);
-  assertEquals(m.recognizes("a"), true);
-  assertEquals(m.recognizes("baba"), true);
-  assertEquals(m.recognizes("baa"), true);
-  assertEquals(m.recognizes("b"), false);
-  assertEquals(m.recognizes("bb"), false);
-  assertEquals(m.recognizes("babba"), false);
+  asserts.assertEquals(m.recognizes(""), true);
+  asserts.assertEquals(m.recognizes("a"), true);
+  asserts.assertEquals(m.recognizes("baba"), true);
+  asserts.assertEquals(m.recognizes("baa"), true);
+  asserts.assertEquals(m.recognizes("b"), false);
+  asserts.assertEquals(m.recognizes("bb"), false);
+  asserts.assertEquals(m.recognizes("babba"), false);
 });
 
 Deno.test("multiple epsilons", () => {
@@ -158,75 +158,107 @@ Deno.test("multiple epsilons", () => {
   ];
 
   const m = new NFA(q1);
-  assertEquals(m.recognizes("x"), true);
-  assertEquals(m.recognizes("bx"), true);
-  assertEquals(m.recognizes("cx"), true);
-  assertEquals(m.recognizes("xx"), false);
-  assertEquals(m.recognizes("bcx"), false);
-  assertEquals(m.recognizes("xc"), false);
-  assertEquals(m.recognizes(""), false);
+  asserts.assertEquals(m.recognizes("x"), true);
+  asserts.assertEquals(m.recognizes("bx"), true);
+  asserts.assertEquals(m.recognizes("cx"), true);
+  asserts.assertEquals(m.recognizes("xx"), false);
+  asserts.assertEquals(m.recognizes("bcx"), false);
+  asserts.assertEquals(m.recognizes("xc"), false);
+  asserts.assertEquals(m.recognizes(""), false);
 });
 
 Deno.test("oneTwoA", () => {
   const m1 = oneTwoA();
-  assertEquals(m1.recognizes("a"), true);
-  assertEquals(m1.recognizes("aa"), true);
-  assertEquals(m1.recognizes("aaa"), false);
-  assertEquals(m1.recognizes(""), false);
-  assertEquals(m1.recognizes("z"), false);
-  assertEquals(m1.recognizes("aaaaaaaaaaaaaaaa"), false);
+  asserts.assertEquals(m1.recognizes("a"), true);
+  asserts.assertEquals(m1.recognizes("aa"), true);
+  asserts.assertEquals(m1.recognizes("aaa"), false);
+  asserts.assertEquals(m1.recognizes(""), false);
+  asserts.assertEquals(m1.recognizes("z"), false);
+  asserts.assertEquals(m1.recognizes("aaaaaaaaaaaaaaaa"), false);
 });
 
 Deno.test("twoB", () => {
   const m1 = twoB();
-  assertEquals(m1.recognizes("bb"), true);
-  assertEquals(m1.recognizes("b"), false);
-  assertEquals(m1.recognizes("a"), false);
-  assertEquals(m1.recognizes("aa"), false);
-  assertEquals(m1.recognizes(""), false);
-  assertEquals(m1.recognizes("bbbbbbbbbbb"), false);
+  asserts.assertEquals(m1.recognizes("bb"), true);
+  asserts.assertEquals(m1.recognizes("b"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
+  asserts.assertEquals(m1.recognizes("aa"), false);
+  asserts.assertEquals(m1.recognizes(""), false);
+  asserts.assertEquals(m1.recognizes("bbbbbbbbbbb"), false);
 });
 
 Deno.test("concat", () => {
   const m1 = oneTwoA();
   const m2 = twoB();
   const concat = m1.concat(m2);
-  assertEquals(concat.recognizes("abb"), true);
-  assertEquals(concat.recognizes("aabb"), true);
-  assertEquals(concat.recognizes(""), false);
-  assertEquals(concat.recognizes("aaabb"), false);
-  assertEquals(concat.recognizes("abbb"), false);
-  assertEquals(concat.recognizes("ab"), false);
-  assertEquals(concat.recognizes("aa"), false);
-  assertEquals(concat.recognizes("aab"), false);
-  assertEquals(concat.recognizes("bb"), false);
-  assertEquals(concat.recognizes("a"), false);
-  assertEquals(concat.recognizes("z"), false);
+  asserts.assertEquals(concat.recognizes("abb"), true);
+  asserts.assertEquals(concat.recognizes("aabb"), true);
+  asserts.assertEquals(concat.recognizes(""), false);
+  asserts.assertEquals(concat.recognizes("aaabb"), false);
+  asserts.assertEquals(concat.recognizes("abbb"), false);
+  asserts.assertEquals(concat.recognizes("ab"), false);
+  asserts.assertEquals(concat.recognizes("aa"), false);
+  asserts.assertEquals(concat.recognizes("aab"), false);
+  asserts.assertEquals(concat.recognizes("bb"), false);
+  asserts.assertEquals(concat.recognizes("a"), false);
+  asserts.assertEquals(concat.recognizes("z"), false);
 });
 
 Deno.test("concat 2", () => {
   const m1 = oneTwoA();
   const m2 = twoB();
   const concat = m2.concat(m1);
-  assertEquals(concat.recognizes("bba"), true);
-  assertEquals(concat.recognizes("bbaa"), true);
-  assertEquals(concat.recognizes("abb"), false);
-  assertEquals(concat.recognizes("ba"), false);
-  assertEquals(concat.recognizes("b"), false);
-  assertEquals(concat.recognizes("bbaaa"), false);
-  assertEquals(concat.recognizes("bb"), false);
-  assertEquals(concat.recognizes("aabb"), false);
-  assertEquals(concat.recognizes(""), false);
+  asserts.assertEquals(concat.recognizes("bba"), true);
+  asserts.assertEquals(concat.recognizes("bbaa"), true);
+  asserts.assertEquals(concat.recognizes("abb"), false);
+  asserts.assertEquals(concat.recognizes("ba"), false);
+  asserts.assertEquals(concat.recognizes("b"), false);
+  asserts.assertEquals(concat.recognizes("bbaaa"), false);
+  asserts.assertEquals(concat.recognizes("bb"), false);
+  asserts.assertEquals(concat.recognizes("aabb"), false);
+  asserts.assertEquals(concat.recognizes(""), false);
 });
 
 Deno.test("concat 3", () => {
   const m1 = oneLetterMachine("b").concat(oneLetterMachine("b"));
-  assertEquals(m1.recognizes("bb"), true);
-  assertEquals(m1.recognizes("b"), false);
-  assertEquals(m1.recognizes("a"), false);
-  assertEquals(m1.recognizes("aa"), false);
-  assertEquals(m1.recognizes(""), false);
-  assertEquals(m1.recognizes("bbbbbbbbbbb"), false);
+  asserts.assertEquals(m1.recognizes("bb"), true);
+  asserts.assertEquals(m1.recognizes("b"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
+  asserts.assertEquals(m1.recognizes("aa"), false);
+  asserts.assertEquals(m1.recognizes(""), false);
+  asserts.assertEquals(m1.recognizes("bbbbbbbbbbb"), false);
+});
+
+Deno.test("empty union", () => {
+  let m1 = oneLetterMachine("q").union(emptyMachine());
+  asserts.assertEquals(m1.recognizes("q"), true);
+  asserts.assertEquals(m1.recognizes(""), true);
+  asserts.assertEquals(m1.recognizes("qd"), false);
+  asserts.assertEquals(m1.recognizes("qq"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
+
+  m1 = oneLetterMachine("q").union(emptyMachine());
+  asserts.assertEquals(m1.recognizes("q"), true);
+  asserts.assertEquals(m1.recognizes(""), true);
+  asserts.assertEquals(m1.recognizes("qd"), false);
+  asserts.assertEquals(m1.recognizes("qq"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
+});
+
+Deno.test("empty concat", () => {
+  const m1 = oneLetterMachine("q").concat(emptyMachine());
+  asserts.assertEquals(m1.recognizes("q"), true);
+  asserts.assertEquals(m1.recognizes(""), false);
+  asserts.assertEquals(m1.recognizes("qd"), false);
+  asserts.assertEquals(m1.recognizes("qq"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
+
+  const m2 = emptyMachine().concat(oneLetterMachine("q"));
+  asserts.assertEquals(m2.recognizes("q"), true);
+  asserts.assertEquals(m2.recognizes(""), false);
+  asserts.assertEquals(m2.recognizes("qd"), false);
+  asserts.assertEquals(m2.recognizes("qq"), false);
+  asserts.assertEquals(m2.recognizes("a"), false);
 });
 
 Deno.test("infinite loop machine", () => {
@@ -239,11 +271,32 @@ Deno.test("infinite loop machine", () => {
     { letter: "ε", state: s1 },
   ];
   const m = new NFA(s1);
-  assertEquals(m.recognizes(""), true);
-  assertEquals(m.recognizes("bbbbbbbbbbb"), false);
-  assertEquals(m.recognizes("a"), false);
-  assertEquals(m.recognizes("zafs"), false);
+  asserts.assertThrows(() => {
+    m.recognizes("");
+  });
 });
+
+// Deno.test("twoB pow 3", () => {
+//   const m = twoB().pow(3);
+//   asserts.assertEquals(m.recognizes("bbbbbb"), true);
+//   asserts.assertEquals(m.recognizes("bb"), false);
+//   asserts.assertEquals(m.recognizes("bbbb"), false);
+//   asserts.assertEquals(m.recognizes("bbbbbbbb"), false);
+//   asserts.assertEquals(m.recognizes("b"), false);
+//   asserts.assertEquals(m.recognizes(""), false);
+// });
+
+// Deno.test("oneTwoA pow 3", () => {
+//   const m = oneTwoA().pow(3);
+//   asserts.assertEquals(m.recognizes("aaa"), true);
+//   asserts.assertEquals(m.recognizes("aaaa"), true);
+//   asserts.assertEquals(m.recognizes("aaaaa"), true);
+//   asserts.assertEquals(m.recognizes("aaaaaa"), true);
+//   asserts.assertEquals(m.recognizes("a"), false);
+//   asserts.assertEquals(m.recognizes("aa"), false);
+//   asserts.assertEquals(m.recognizes("aaaaaaaa"), false);
+//   asserts.assertEquals(m.recognizes("aaaaaaaaa"), false);
+// });
 
 //machine that recognizes all strings from {a} containing an even number of a's
 function evenMachine(): NFA {

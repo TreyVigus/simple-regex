@@ -33,7 +33,6 @@ export type Transition = {
   state: State;
 };
 
-//TODO: is start boolean even needed?
 export type State = {
   accept?: boolean;
   transitions?: Transition[];
@@ -42,27 +41,59 @@ export type State = {
 export class NFA {
   public start: State;
 
-  /** Retrieve all transitions. */
-  // public get transitions(): State[] {
-
-  // }
-
   constructor(start: State) {
     this.start = start;
   }
 
   public recognizes(s: string): boolean {
-    try {
-      return this.recognizeDfs(this.start, s, 0);
-    } catch(_e) {
-      //if there is an infinite loop in the machine, just return false.
-      //TODO: cycle detection on a directed graph
+    //Note: This will throw an exception if the machine has an infinite ε loop.
+    const recognizeDfs = (current: State, i: number): boolean => {
+      for(const t of current.transitions ?? []) {
+        if(t.letter === 'ε') {
+          if(recognizeDfs(t.state, i)) {
+            return true;
+          }
+        }
+      }
+  
+      if(i === s.length) {
+        return !!current.accept;
+      }
+  
+      for(const t of current.transitions ?? []) {
+        if(t.letter === s.charAt(i)) {
+          if(recognizeDfs(t.state, i+1)) {
+            return true;
+          }
+        }
+      }
+  
       return false;
     }
+
+    return recognizeDfs(this.start, 0);
+  }
+
+  /** Retrieve all transitions. */
+  public get states(): State[] {
+    const states: State[] = [];
+    const getStatesDFS = (current: State): void => {
+      if(states.includes(current)) {
+        return;
+      } else {
+        states.push(current);
+      }
+  
+      for(const t of current.transitions ?? []) {
+        getStatesDFS(t.state);
+      }
+    }
+    getStatesDFS(this.start);
+    return states;
   }
 
   public concat(x: NFA): NFA {
-    const accept = this.findAcceptStates();
+    const accept = this.states.filter(s => !!s.accept);
     accept.forEach(state => {
       state.accept = false;
       state.transitions = state.transitions ?? [];
@@ -87,44 +118,5 @@ export class NFA {
   /** Concatenate this machine with itself n times.*/
   public pow(n: number): NFA {
     throw "not done";
-  }
-
-  private recognizeDfs(state: State, s: string, i: number): boolean {
-    if(i === s.length) {
-      return !!state.accept;
-    }
-
-    for(const t of state.transitions ?? []) {
-      if(t.letter === 'ε') {
-        if(this.recognizeDfs(t.state, s, i)) {
-          return true;
-        }
-      } else if(t.letter === s.charAt(i)) {
-        if(this.recognizeDfs(t.state, s, i+1)) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  private findAcceptStates(): State[] {
-    const accept: State[] = [];
-    this.findAcceptDFS(this.start, accept, new Set());
-    return accept;
-  }
-
-  private findAcceptDFS(current: State, accept: State[], visited: Set<State>): void {
-    if(current.accept) {
-      accept.push(current);
-    }
-
-    for(const t of current.transitions ?? []) {
-      if(!visited.has(t.state)) {
-        visited.add(t.state);
-        this.findAcceptDFS(t.state, accept, visited);
-      }
-    }
   }
 }
