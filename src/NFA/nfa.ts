@@ -64,7 +64,12 @@ export class NFA {
    * or the given NFA's language.
    */
   public union(x: NFA): NFA {
-    throw 'blah';
+    const head: State = {};
+    head.transitions = [
+      {letter: 'ε', state: this.start},
+      {letter: 'ε', state: x.start},
+    ];
+    return new NFA(head);
   }
 
   /** Concatenate this machine with itself n times.*/
