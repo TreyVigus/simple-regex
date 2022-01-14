@@ -52,7 +52,13 @@ export class NFA {
   }
 
   public recognizes(s: string): boolean {
-    return this.recognizeDfs(this.start, s, 0);
+    try {
+      return this.recognizeDfs(this.start, s, 0);
+    } catch(_e) {
+      //if there is an infinite loop in the machine, just return false.
+      //TODO: cycle detection on a directed graph
+      return false;
+    }
   }
 
   public concat(x: NFA): NFA {
@@ -73,7 +79,7 @@ export class NFA {
     const head: State = {};
     head.transitions = [
       {letter: 'ε', state: this.start},
-      {letter: 'ε', state: x.start},
+      {letter: 'ε', state: x.start}
     ];
     return new NFA(head);
   }
