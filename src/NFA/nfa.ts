@@ -36,12 +36,17 @@ export type Transition = {
 //TODO: is start boolean even needed?
 export type State = {
   accept?: boolean;
-  start?: boolean;
   transitions?: Transition[];
 };
 
 export class NFA {
   public start: State;
+
+  /** Retrieve all transitions. */
+  // public get transitions(): State[] {
+
+  // }
+
   constructor(start: State) {
     this.start = start;
   }
@@ -54,8 +59,12 @@ export class NFA {
     throw "not done";
   }
 
+  /** 
+   * Return an NFA that recognizes any string in this NFA's language,
+   * or the given NFA's language.
+   */
   public union(x: NFA): NFA {
-    throw "not done";
+    throw 'blah';
   }
 
   /** Concatenate this machine with itself n times.*/

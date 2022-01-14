@@ -24,7 +24,7 @@ Deno.test("oneLetterMachine", () => {
 Deno.test("sipster page 51", () => {
   //machine that recognizes all strings from {a,b} containing a 1 in the
   //third position of the end.
-  const q1: State = { start: true };
+  const q1: State = {};
   const q2: State = {};
   const q3: State = {};
   const q4: State = { accept: true };
@@ -108,7 +108,7 @@ Deno.test("sipster page 52 union (reverse)", () => {
 });
 
 Deno.test("sipster page 53", () => {
-  const q1: State = { start: true, accept: true };
+  const q1: State = { accept: true };
   const q2: State = {};
   const q3: State = {};
 
@@ -138,9 +138,9 @@ Deno.test("sipster page 53", () => {
 });
 
 Deno.test("multiple epsilons", () => {
-  const q1: State = { start: true, accept: false };
-  const q2: State = { start: false };
-  const q3: State = { start: true };
+  const q1: State = { accept: false };
+  const q2: State = {};
+  const q3: State = {};
   const q4: State = { accept: true };
 
   q1.transitions = [
@@ -230,16 +230,16 @@ Deno.test("concat 3", () => {
 });
 
 Deno.test("infinite loop machine", () => {
-  const s1: State = {start: true, accept: true};
+  const s1: State = { accept: true };
   const s2: State = {};
   s1.transitions = [
-    {letter: 'ε', state: s2}
+    { letter: "ε", state: s2 },
   ];
   s2.transitions = [
-    {letter: 'ε', state: s1}
+    { letter: "ε", state: s1 },
   ];
   const m = new NFA(s1);
-  assertEquals(m.recognizes(''), true);
+  assertEquals(m.recognizes(""), true);
   assertEquals(m.recognizes("bbbbbbbbbbb"), false);
   assertEquals(m.recognizes("a"), false);
   assertEquals(m.recognizes("zafs"), false);
@@ -247,7 +247,7 @@ Deno.test("infinite loop machine", () => {
 
 //machine that recognizes all strings from {a} containing an even number of a's
 function evenMachine(): NFA {
-  const q2: State = { start: true, accept: true };
+  const q2: State = { accept: true };
   const q3: State = {};
 
   q2.transitions = [
@@ -262,7 +262,7 @@ function evenMachine(): NFA {
 
 //machine that recognizes all strings from {a} containing 3k a's, where k is a natural number
 function mult3Machine(): NFA {
-  const q4: State = { start: true, accept: true };
+  const q4: State = { accept: true };
   const q5: State = {};
   const q6: State = {};
 
@@ -281,7 +281,7 @@ function mult3Machine(): NFA {
 
 //recognizes 'a' or 'aa'
 function oneTwoA(): NFA {
-  const q1: State = { start: true };
+  const q1: State = {};
   const q2: State = { accept: true };
   const q3: State = {};
   const q4: State = { accept: true };
@@ -300,7 +300,7 @@ function oneTwoA(): NFA {
 
 //recognizes 'bb'
 function twoB(): NFA {
-  const q5: State = { start: true };
+  const q5: State = {};
   const q6: State = {};
   const q7: State = { accept: true };
 

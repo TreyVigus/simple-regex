@@ -2,7 +2,7 @@ import { Letter, NFA, State } from "./nfa.ts";
 
 /** Get a machine that recognizes only the string ''. */
 export function emptyMachine(): NFA {
-  const startState: State = { accept: true, start: true };
+  const startState: State = { accept: true };
   return new NFA(startState);
 }
 
@@ -11,8 +11,8 @@ export function oneLetterMachine(letter: Letter): NFA {
   if (letter.length !== 1) {
     throw "c must be a single letter";
   }
-  const startState: State = { start: true };
-  const acceptState: State = { accept: true };
+  const startState: State = {};
+  const acceptState: State = {};
   startState.transitions = [
     { letter, state: acceptState },
   ];
