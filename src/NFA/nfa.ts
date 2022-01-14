@@ -56,7 +56,13 @@ export class NFA {
   }
 
   public concat(x: NFA): NFA {
-    throw "not done";
+    const accept = this.findAcceptStates();
+    accept.forEach(state => {
+      state.accept = false;
+      state.transitions = state.transitions ?? [];
+      state.transitions.push({letter: 'ε', state: x.start});
+    });
+    return this;
   }
 
   /** 
@@ -95,5 +101,24 @@ export class NFA {
     }
 
     return false;
+  }
+
+  private findAcceptStates(): State[] {
+    const accept: State[] = [];
+    this.findAcceptDFS(this.start, accept, new Set());
+    return accept;
+  }
+
+  private findAcceptDFS(current: State, accept: State[], visited: Set<State>): void {
+    if(current.accept) {
+      accept.push(current);
+    }
+
+    for(const t of current.transitions ?? []) {
+      if(!visited.has(t.state)) {
+        visited.add(t.state);
+        this.findAcceptDFS(t.state, accept, visited);
+      }
+    }
   }
 }
