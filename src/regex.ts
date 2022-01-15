@@ -26,21 +26,28 @@ export class Regex {
   private buildNFA(expr: string, start: number, end: number): NFA {
     let M = emptyMachine();
     let operator: Operator | undefined;
-    for(let i = end; i >= start; i--) {
+    let i = end;
+    while(i >= start) {
       const c = expr.charAt(i);
+      //new value for i at end of iteration
+      let nextIdx: number;
       if(c === '}') {
         const idx = this.findOpeningCurlyIdx(expr, i);
         operator = this.formOperator(expr, idx, i);
+        nextIdx = idx - 1
       } else {
         let Q: NFA;
         if(c === ')') {
           const idx = this.findOpeningParenIdx(expr, i);
           Q = this.buildNFA(expr, idx+1, i-1);
+          nextIdx = idx - 1;
         } else if(c === ']') {
           const idx = this.findOpeningBracketIdx(expr, i);
           Q = this.formBracketMachine(expr, idx, i);
+          nextIdx = idx - 1;
         } else {
           Q = oneLetterMachine(c as Letter);
+          nextIdx = i - 1;
         }
         if(operator) {
           Q = this.applyOperator(Q, operator);
@@ -48,6 +55,7 @@ export class Regex {
         }
         M = Q.concat(M);
       }
+      i = nextIdx;
     }
     return M;
   }
