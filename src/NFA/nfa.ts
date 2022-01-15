@@ -93,12 +93,14 @@ export class NFA {
   }
 
   public concat(x: NFA): NFA {
-    this.states.filter(s => !!s.accept).forEach(state => {
+    const thisCloned = this.clone();
+    const xCloned = x.clone();
+    thisCloned.states.filter(s => !!s.accept).forEach(state => {
       state.accept = false;
       state.transitions = state.transitions ?? [];
-      state.transitions.push({letter: 'ε', state: x.start});
+      state.transitions.push({letter: 'ε', state: xCloned.start});
     });
-    return this;
+    return thisCloned;
   }
 
   /** 
@@ -106,10 +108,12 @@ export class NFA {
    * or the given NFA's language.
    */
   public union(x: NFA): NFA {
+    const thisCloned = this.clone();
+    const xCloned = x.clone();
     const head: State = {};
     head.transitions = [
-      {letter: 'ε', state: this.start},
-      {letter: 'ε', state: x.start}
+      {letter: 'ε', state: thisCloned.start},
+      {letter: 'ε', state: xCloned.start}
     ];
     return new NFA(head);
   }
