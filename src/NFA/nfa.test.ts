@@ -229,6 +229,66 @@ Deno.test("concat 3", () => {
   asserts.assertEquals(m1.recognizes("bbbbbbbbbbb"), false);
 });
 
+Deno.test("modifying clone accept state does not change original", () => {
+  const m1 = emptyMachine();
+  const clone = m1.clone();
+  clone.start.accept = false;
+  asserts.assertNotEquals(m1.start.accept, false);
+});
+
+Deno.test("modifying clone transitions does not change original", () => {
+  const m1 = evenMachine();
+  const clone = m1.clone();
+  //change q3
+  clone.states[1].transitions![0].letter = 'b';
+  clone.states[1].transitions![0].state = {
+    accept: false
+  };
+  asserts.assertEquals(m1.states[1].transitions![0].letter, 'a');
+  asserts.assertEquals(m1.states[1].transitions![0].state.accept, true);
+});
+
+Deno.test("clone has equivalent transitions", () => {
+  const start: State = { accept: true };
+  start.transitions = [
+    {letter: 'a', state: start},
+    {letter: 'b', state: start}
+  ];
+  const machine = new NFA(start);
+  const clone = machine.clone();
+  asserts.assertStrictEquals(clone.start.transitions![0].state, clone.start.transitions![1].state);
+});
+
+Deno.test("concat is pure", () => {
+  const m1 = evenMachine();
+  const m2 = mult3Machine();
+  const concat = m1.concat(m2);
+  concat.states.forEach(s => {
+    s.transitions = [];
+  });
+  
+  const emptyM1 = m1.states.filter(s => s.transitions && s.transitions.length === 0).length;
+  asserts.assertNotEquals(emptyM1, m1.states.length);
+
+  const emptyM2 = m2.states.filter(s => s.transitions && s.transitions.length === 0).length;
+  asserts.assertNotEquals(emptyM2, m2.states.length);
+});
+
+Deno.test("union is pure", () => {
+  const m1 = evenMachine();
+  const m2 = mult3Machine();
+  const union = m1.union(m2);
+  union.states.forEach(s => {
+    s.transitions = [];
+  });
+  
+  const emptyM1 = m1.states.filter(s => s.transitions && s.transitions.length === 0).length;
+  asserts.assertNotEquals(emptyM1, m1.states.length);
+
+  const emptyM2 = m2.states.filter(s => s.transitions && s.transitions.length === 0).length;
+  asserts.assertNotEquals(emptyM2, m2.states.length);
+});
+
 Deno.test("empty union", () => {
   let m1 = oneLetterMachine("q").union(emptyMachine());
   asserts.assertEquals(m1.recognizes("q"), true);
@@ -274,6 +334,52 @@ Deno.test("infinite loop machine", () => {
   asserts.assertThrows(() => {
     m.recognizes("");
   });
+});
+
+Deno.test("clone recognizes same language", () => {
+  let m1 = oneLetterMachine("b").concat(oneLetterMachine("b")).clone();
+  asserts.assertEquals(m1.recognizes("bb"), true);
+  asserts.assertEquals(m1.recognizes("b"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
+  asserts.assertEquals(m1.recognizes("aa"), false);
+  asserts.assertEquals(m1.recognizes(""), false);
+  asserts.assertEquals(m1.recognizes("bbbbbbbbbbb"), false);
+
+  const union = evenMachine().union(mult3Machine()).clone();
+  asserts.assertEquals(union.recognizes("a"), false);
+  asserts.assertEquals(union.recognizes("aa"), true);
+  asserts.assertEquals(union.recognizes("aaa"), true);
+  asserts.assertEquals(union.recognizes("aaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaa"), false);
+  asserts.assertEquals(union.recognizes("aaaaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaaa"), true);
+  asserts.assertEquals(union.recognizes("aaaaaaa"), false);
+  asserts.assertEquals(union.recognizes("b"), false);
+
+  const m = evenMachine().clone();
+  asserts.assertEquals(m.recognizes(""), true);
+  asserts.assertEquals(m.recognizes("aa"), true);
+  asserts.assertEquals(m.recognizes("aaaa"), true);
+  asserts.assertEquals(m.recognizes("aaaaaaaa"), true);
+  asserts.assertEquals(m.recognizes("a"), false);
+  asserts.assertEquals(m.recognizes("aaa"), false);
+  asserts.assertEquals(m.recognizes("aaaaa"), false);
+  asserts.assertEquals(m.recognizes("aaaaaaaaa"), false);
+  asserts.assertEquals(m.recognizes("bbaaaa"), false);
+
+  m1 = oneLetterMachine("q").union(emptyMachine());
+  asserts.assertEquals(m1.recognizes("q"), true);
+  asserts.assertEquals(m1.recognizes(""), true);
+  asserts.assertEquals(m1.recognizes("qd"), false);
+  asserts.assertEquals(m1.recognizes("qq"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
+
+  m1 = oneLetterMachine("q").concat(emptyMachine()).clone();
+  asserts.assertEquals(m1.recognizes("q"), true);
+  asserts.assertEquals(m1.recognizes(""), false);
+  asserts.assertEquals(m1.recognizes("qd"), false);
+  asserts.assertEquals(m1.recognizes("qq"), false);
+  asserts.assertEquals(m1.recognizes("a"), false);
 });
 
 // Deno.test("twoB pow 3", () => {

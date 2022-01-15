@@ -87,6 +87,11 @@ export class NFA {
     return states;
   }
 
+  public clone(): NFA {
+    const clonedStates: State[] = structuredClone(this.states);
+    return new NFA(clonedStates[0]);
+  }
+
   public concat(x: NFA): NFA {
     this.states.filter(s => !!s.accept).forEach(state => {
       state.accept = false;
