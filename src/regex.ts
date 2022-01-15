@@ -1,9 +1,9 @@
-import { Letter, NFA } from './NFA/nfa.ts';
+import { Letter, NFA } from "./NFA/nfa.ts";
 import { emptyMachine, oneLetterMachine } from "./NFA/nfaFactory.ts";
 type Operator = {
-  x: number,
-  y: number
-}
+  x: number;
+  y: number;
+};
 
 /**
  * Accepted Symbols:
@@ -15,7 +15,7 @@ type Operator = {
 export class Regex {
   private nfa: NFA;
   constructor(expr: string) {
-    this.nfa = this.buildNFA(expr, 0, expr.length-1);
+    this.nfa = this.buildNFA(expr, 0, expr.length - 1);
   }
 
   public test(s: string): boolean {
@@ -27,21 +27,21 @@ export class Regex {
     let M = emptyMachine();
     let operator: Operator | undefined;
     let i = end;
-    while(i >= start) {
+    while (i >= start) {
       const c = expr.charAt(i);
       //new value for i at end of iteration
       let nextIdx: number;
-      if(c === '}') {
+      if (c === "}") {
         const idx = this.findOpeningCurlyIdx(expr, i);
         operator = this.formOperator(expr, idx, i);
-        nextIdx = idx - 1
+        nextIdx = idx - 1;
       } else {
         let Q: NFA;
-        if(c === ')') {
+        if (c === ")") {
           const idx = this.findOpeningParenIdx(expr, i);
-          Q = this.buildNFA(expr, idx+1, i-1);
+          Q = this.buildNFA(expr, idx + 1, i - 1);
           nextIdx = idx - 1;
-        } else if(c === ']') {
+        } else if (c === "]") {
           const idx = this.findOpeningBracketIdx(expr, i);
           Q = this.formBracketMachine(expr, idx, i);
           nextIdx = idx - 1;
@@ -49,7 +49,7 @@ export class Regex {
           Q = oneLetterMachine(c as Letter);
           nextIdx = i - 1;
         }
-        if(operator) {
+        if (operator) {
           Q = this.applyOperator(Q, operator);
           operator = undefined;
         }
@@ -61,8 +61,8 @@ export class Regex {
   }
 
   private findOpeningCurlyIdx(expr: string, closingIdx: number): number {
-    for(let i = closingIdx - 1; i > -1; i--) {
-      if(expr.charAt(i) === '{') {
+    for (let i = closingIdx - 1; i > -1; i--) {
+      if (expr.charAt(i) === "{") {
         return i;
       }
     }
@@ -74,19 +74,19 @@ export class Regex {
    * end: index of closing }
    */
   private formOperator(expr: string, start: number, end: number): Operator {
-    if(end - start + 1 === 3) {
-      const num = parseInt(expr.substring(start+1, end));
-      return {x: num, y: num};
+    if (end - start + 1 === 3) {
+      const num = parseInt(expr.substring(start + 1, end));
+      return { x: num, y: num };
     }
-    const commaIdx = expr.indexOf(',', start);
-    const x = parseInt(expr.substring(start+1, commaIdx));
-    const y = parseInt(expr.substring(commaIdx+1, end));
-    return {x, y};
+    const commaIdx = expr.indexOf(",", start);
+    const x = parseInt(expr.substring(start + 1, commaIdx));
+    const y = parseInt(expr.substring(commaIdx + 1, end));
+    return { x, y };
   }
 
   private applyOperator(nfa: NFA, op: Operator): NFA {
     let unionMachine = nfa.pow(op.x);
-    for(let i = op.x + 1; i <= op.y; i++) {
+    for (let i = op.x + 1; i <= op.y; i++) {
       const powMachine = nfa.pow(i);
       unionMachine = unionMachine.union(powMachine);
     }
@@ -95,18 +95,23 @@ export class Regex {
 
   //TODO: same as findOpeningCurlyIdx
   private findOpeningBracketIdx(expr: string, closingIdx: number): number {
-    for(let i = closingIdx - 1; i > -1; i--) {
-      if(expr.charAt(i) === '[') {
+    for (let i = closingIdx - 1; i > -1; i--) {
+      if (expr.charAt(i) === "[") {
         return i;
       }
     }
     return -1;
   }
 
-  private formBracketMachine(expr: string, openingBracketIdx: number, closingBracketIndex: number): NFA {
-    const letters = expr.substring(openingBracketIdx+1, closingBracketIndex).split('');
+  private formBracketMachine(
+    expr: string,
+    openingBracketIdx: number,
+    closingBracketIndex: number,
+  ): NFA {
+    const letters = expr.substring(openingBracketIdx + 1, closingBracketIndex)
+      .split("");
     let unionMachine = oneLetterMachine(letters[0] as Letter);
-    letters.slice(1).forEach(l => {
+    letters.slice(1).forEach((l) => {
       const m = oneLetterMachine(l as Letter);
       unionMachine = unionMachine.union(m);
     });
@@ -115,12 +120,12 @@ export class Regex {
 
   private findOpeningParenIdx(expr: string, closingIdx: number): number {
     const stack = [];
-    for(let i = closingIdx; i > -1; i--) {
-      if(expr.charAt(i) === ')') {
+    for (let i = closingIdx; i > -1; i--) {
+      if (expr.charAt(i) === ")") {
         stack.push(i);
-      } else if(expr.charAt(i) === '(') {
+      } else if (expr.charAt(i) === "(") {
         stack.pop();
-        if(stack.length === 0) {
+        if (stack.length === 0) {
           return i;
         }
       }
