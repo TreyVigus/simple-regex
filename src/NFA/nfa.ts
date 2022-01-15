@@ -1,3 +1,5 @@
+import { emptyMachine } from "./nfaFactory.ts";
+
 /** Single character string. */
 export type Letter =
   | "a"
@@ -120,9 +122,12 @@ export class NFA {
 
   /** 
    * Concatenate this machine with itself n times.
-   * TODO: this will probably need a pure concat function (might as well do union as well)
    * */
   public pow(n: number): NFA {
-    throw "not done";
+    let m = emptyMachine();
+    for(let i = 0; i < n; i++) {
+      m = m.concat(this);
+    }
+    return m;
   }
 }

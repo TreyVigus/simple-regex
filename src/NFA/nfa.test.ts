@@ -382,27 +382,28 @@ Deno.test("clone recognizes same language", () => {
   asserts.assertEquals(m1.recognizes("a"), false);
 });
 
-// Deno.test("twoB pow 3", () => {
-//   const m = twoB().pow(3);
-//   asserts.assertEquals(m.recognizes("bbbbbb"), true);
-//   asserts.assertEquals(m.recognizes("bb"), false);
-//   asserts.assertEquals(m.recognizes("bbbb"), false);
-//   asserts.assertEquals(m.recognizes("bbbbbbbb"), false);
-//   asserts.assertEquals(m.recognizes("b"), false);
-//   asserts.assertEquals(m.recognizes(""), false);
-// });
+Deno.test("twoB pow 3", () => {
+  const m = twoB().pow(3);
+  console.log('pow states: ', m.states.length);
+  asserts.assertEquals(m.recognizes("bbbbbb"), true);
+  asserts.assertEquals(m.recognizes("bb"), false);
+  asserts.assertEquals(m.recognizes("bbbb"), false);
+  asserts.assertEquals(m.recognizes("bbbbbbbb"), false);
+  asserts.assertEquals(m.recognizes("b"), false);
+  asserts.assertEquals(m.recognizes(""), false);
+});
 
-// Deno.test("oneTwoA pow 3", () => {
-//   const m = oneTwoA().pow(3);
-//   asserts.assertEquals(m.recognizes("aaa"), true);
-//   asserts.assertEquals(m.recognizes("aaaa"), true);
-//   asserts.assertEquals(m.recognizes("aaaaa"), true);
-//   asserts.assertEquals(m.recognizes("aaaaaa"), true);
-//   asserts.assertEquals(m.recognizes("a"), false);
-//   asserts.assertEquals(m.recognizes("aa"), false);
-//   asserts.assertEquals(m.recognizes("aaaaaaaa"), false);
-//   asserts.assertEquals(m.recognizes("aaaaaaaaa"), false);
-// });
+Deno.test("oneTwoA pow 3", () => {
+  const m = oneTwoA().pow(3);
+  asserts.assertEquals(m.recognizes("aaa"), true);
+  asserts.assertEquals(m.recognizes("aaaa"), true);
+  asserts.assertEquals(m.recognizes("aaaaa"), true);
+  asserts.assertEquals(m.recognizes("aaaaaa"), true);
+  asserts.assertEquals(m.recognizes("a"), false);
+  asserts.assertEquals(m.recognizes("aa"), false);
+  asserts.assertEquals(m.recognizes("aaaaaaaa"), false);
+  asserts.assertEquals(m.recognizes("aaaaaaaaa"), false);
+});
 
 //machine that recognizes all strings from {a} containing an even number of a's
 function evenMachine(): NFA {

@@ -1,4 +1,4 @@
-import { assertEquals } from "../deps.ts";
+import { asserts } from "../deps.ts";
 import { Regex } from "./regex.ts";
 
 type Test = {
@@ -228,7 +228,7 @@ tests.forEach((test) => {
     const regex = new Regex(test.expr);
     test.cases.forEach((testCase) => {
       const res = regex.test(testCase.s);
-      assertEquals(res, testCase.expected);
+      asserts.assertEquals(res, testCase.expected);
     });
   });
 });
