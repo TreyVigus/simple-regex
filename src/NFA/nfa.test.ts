@@ -240,37 +240,42 @@ Deno.test("modifying clone transitions does not change original", () => {
   const m1 = evenMachine();
   const clone = m1.clone();
   //change q3
-  clone.states[1].transitions![0].letter = 'b';
+  clone.states[1].transitions![0].letter = "b";
   clone.states[1].transitions![0].state = {
-    accept: false
+    accept: false,
   };
-  asserts.assertEquals(m1.states[1].transitions![0].letter, 'a');
+  asserts.assertEquals(m1.states[1].transitions![0].letter, "a");
   asserts.assertEquals(m1.states[1].transitions![0].state.accept, true);
 });
 
 Deno.test("clone has equivalent transitions", () => {
   const start: State = { accept: true };
   start.transitions = [
-    {letter: 'a', state: start},
-    {letter: 'b', state: start}
+    { letter: "a", state: start },
+    { letter: "b", state: start },
   ];
   const machine = new NFA(start);
   const clone = machine.clone();
-  asserts.assertStrictEquals(clone.start.transitions![0].state, clone.start.transitions![1].state);
+  asserts.assertStrictEquals(
+    clone.start.transitions![0].state,
+    clone.start.transitions![1].state,
+  );
 });
 
 Deno.test("concat is pure", () => {
   const m1 = evenMachine();
   const m2 = mult3Machine();
   const concat = m1.concat(m2);
-  concat.states.forEach(s => {
+  concat.states.forEach((s) => {
     s.transitions = [];
   });
-  
-  const emptyM1 = m1.states.filter(s => s.transitions && s.transitions.length === 0).length;
+
+  const emptyM1 =
+    m1.states.filter((s) => s.transitions && s.transitions.length === 0).length;
   asserts.assertNotEquals(emptyM1, m1.states.length);
 
-  const emptyM2 = m2.states.filter(s => s.transitions && s.transitions.length === 0).length;
+  const emptyM2 =
+    m2.states.filter((s) => s.transitions && s.transitions.length === 0).length;
   asserts.assertNotEquals(emptyM2, m2.states.length);
 });
 
@@ -278,14 +283,16 @@ Deno.test("union is pure", () => {
   const m1 = evenMachine();
   const m2 = mult3Machine();
   const union = m1.union(m2);
-  union.states.forEach(s => {
+  union.states.forEach((s) => {
     s.transitions = [];
   });
-  
-  const emptyM1 = m1.states.filter(s => s.transitions && s.transitions.length === 0).length;
+
+  const emptyM1 =
+    m1.states.filter((s) => s.transitions && s.transitions.length === 0).length;
   asserts.assertNotEquals(emptyM1, m1.states.length);
 
-  const emptyM2 = m2.states.filter(s => s.transitions && s.transitions.length === 0).length;
+  const emptyM2 =
+    m2.states.filter((s) => s.transitions && s.transitions.length === 0).length;
   asserts.assertNotEquals(emptyM2, m2.states.length);
 });
 
@@ -384,7 +391,7 @@ Deno.test("clone recognizes same language", () => {
 
 Deno.test("twoB pow 3", () => {
   const m = twoB().pow(3);
-  console.log('pow states: ', m.states.length);
+  console.log("pow states: ", m.states.length);
   asserts.assertEquals(m.recognizes("bbbbbb"), true);
   asserts.assertEquals(m.recognizes("bb"), false);
   asserts.assertEquals(m.recognizes("bbbb"), false);

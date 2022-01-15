@@ -12,7 +12,7 @@ export function oneLetterMachine(letter: Letter): NFA {
     throw "c must be a single letter";
   }
   const startState: State = {};
-  const acceptState: State = {accept: true};
+  const acceptState: State = { accept: true };
   startState.transitions = [
     { letter, state: acceptState },
   ];
