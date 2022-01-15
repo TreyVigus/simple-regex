@@ -105,8 +105,8 @@ export class Regex {
 
   private formBracketMachine(expr: string, openingBracketIdx: number, closingBracketIndex: number): NFA {
     const letters = expr.substring(openingBracketIdx+1, closingBracketIndex).split('');
-    let unionMachine = emptyMachine();
-    letters.forEach(l => {
+    let unionMachine = oneLetterMachine(letters[0] as Letter);
+    letters.slice(1).forEach(l => {
       const m = oneLetterMachine(l as Letter);
       unionMachine = unionMachine.union(m);
     });
