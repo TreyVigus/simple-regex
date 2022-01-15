@@ -85,8 +85,8 @@ export class Regex {
   }
 
   private applyOperator(nfa: NFA, op: Operator): NFA {
-    let unionMachine = emptyMachine();
-    for(let i = op.x; i <= op.y; i++) {
+    let unionMachine = nfa.pow(op.x);
+    for(let i = op.x + 1; i <= op.y; i++) {
       const powMachine = nfa.pow(i);
       unionMachine = unionMachine.union(powMachine);
     }
