@@ -221,6 +221,28 @@ const tests: Test[] = [
       { s: "hththththt", expected: false },
     ],
   },
+  {
+    expr: "(bl){1,2}(hxy{2,3}){2,3}q{2}",
+    cases: [
+      { s: "blhxyyhxyyqq", expected: true },
+      { s: "blhxyyhxyyyhxyyqq", expected: true },
+      { s: "blhxyyhxyyyhxyyq", expected: false },
+      { s: "blhxyhxyhxyhxyqq", expected: false },
+      { s: "blhxyyhxyyyyqq", expected: false },
+    ]
+  },
+  {
+    expr: "[abc]xy{3}(q(efff){2}){3,4}",
+    cases: [
+      { s: "axyyyqefffefffqefffefffqefffefff", expected: true },
+      { s: "axyyyqefffefffqefffefffqefffefffqefffefff", expected: true },
+      { s: "bxyyyqefffefffqefffefffqefffefffqefffefff", expected: true },
+      { s: "bcxyyyqefffefffqefffefffqefffefffqefffefff", expected: false },
+      { s: "axyyyqeffffefffqefffefffqefffefffqefffefff", expected: false },
+      { s: "axyyyqefffefffqefffefffqefffefffqefffefffqefffefff", expected: false },
+      { s: "axyyqefffefffqefffefffqefffefff", expected: false },
+    ]
+  }
 ];
 
 tests.forEach((test) => {
