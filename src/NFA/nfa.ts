@@ -49,6 +49,7 @@ export class NFA {
 
   public recognizes(s: string): boolean {
     //Note: This will throw an exception if the machine has an infinite ε loop.
+    //      Dynamic programming would make this much faster, but we only care about small inputs anyway.
     const recognizeDfs = (current: State, i: number): boolean => {
       for (const t of current.transitions ?? []) {
         if (t.letter === "ε" && recognizeDfs(t.state, i)) {
