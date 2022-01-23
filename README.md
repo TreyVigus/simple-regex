@@ -4,4 +4,4 @@ This is a regex engine that can recognize strings of lowercase english character
 - quantifiers via {}
 - nested expressions via ()
 
-See src/regex.test.ts for examples
+See src/regex.test.ts for examples.
