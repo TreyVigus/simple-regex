@@ -3,3 +3,5 @@ This is a regex engine that can recognize strings of lowercase english character
 - character sets with []
 - quantifiers via {}
 - nested expressions via ()
+
+See regex.test.ts for examples
