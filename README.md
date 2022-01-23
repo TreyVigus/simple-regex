@@ -1,6 +1,5 @@
 ## About
-This is a regex engine that can recognize strings of lowercase english characters. It supports character classes
-
-character sets with []
-quantifiers via {}
-nested expressions via ()
+This is a regex engine that can recognize strings of lowercase english characters. It currently supports the following: 
+- character sets with []
+- quantifiers via {}
+- nested expressions via ()
