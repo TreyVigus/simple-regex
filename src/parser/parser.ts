@@ -1,5 +1,5 @@
-import { Grammar } from "../grammar/grammar";
-import { getRegexGrammar } from "../grammar/grammarFactory";
+import { Grammar } from "../grammar/grammar.ts";
+import { getRegexGrammar } from "../grammar/grammarFactory.ts";
 
 export type ParseNode = {
     value: string,

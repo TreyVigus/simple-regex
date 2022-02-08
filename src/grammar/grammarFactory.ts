@@ -1,4 +1,4 @@
-import { Grammar, Rule } from "./grammar";
+import { Grammar, Rule } from "./grammar.ts";
 
 export function getRegexGrammar(): Grammar {
     const rules: Rule[] = [
