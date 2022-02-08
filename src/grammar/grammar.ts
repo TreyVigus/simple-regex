@@ -28,8 +28,20 @@ export class Grammar {
                 if(!this.variables.has(char)) {
                     s.add(char);
                 }
-            })
+            });
         });
         return s;
+    }
+
+    public hasTerminal(char: string) {
+        return this.terminals.has(char);
+    }
+
+    public hasVariable(char: string) {
+        return this.variables.has(char);
+    }
+
+    public getReplacements(variable: string): string[] {
+        return this.rules.filter(r => r.variable === variable).map(r => r.replacement);
     }
 }
