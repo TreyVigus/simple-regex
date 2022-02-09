@@ -8,14 +8,15 @@ const rules: Rule[] = [
     {variable: 'X', replacement: 'hello'},
     {variable: 'Y', replacement: 'YX'},
     {variable: 'Y', replacement: 't'},
-    {variable: 'Y', replacement: ''}
+    {variable: 'Y', replacement: ''},
+    {variable: 'Q', replacement: 'X'}
 ];
 
 const grammar = new Grammar(rules);
 
 Deno.test('extracts variables', () => {
     asserts.assertEquals(grammar.startVariable, 'S');
-    asserts.assertEquals([...grammar.variables], ['S', 'X', 'Y']);
+    asserts.assertEquals([...grammar.variables], ['S', 'X', 'Y', 'Q']);
     asserts.assertEquals(grammar.hasVariable('S'), true);
     asserts.assertEquals(grammar.hasVariable('Y'), true);
     asserts.assertEquals(grammar.hasVariable('Z'), false);
@@ -32,5 +33,6 @@ Deno.test('extracts terminals', () => {
 Deno.test('getReplacements', () => {
     asserts.assertEquals(grammar.getReplacements('X'), ['XX', 'hello']);
     asserts.assertEquals(grammar.getReplacements('Y'), ['YX', 't', '']);
-    asserts.assertEquals(grammar.getReplacements('Q'), []);
+    asserts.assertEquals(grammar.getReplacements('Q'), ['X']);
+    asserts.assertEquals(grammar.getReplacements('Z'), []);
 });
