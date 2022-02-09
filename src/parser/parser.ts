@@ -23,7 +23,6 @@ export class RegexParser implements Parser {
      * TODO: this isn't generic enough to handle changes to the grammar rules.
      */
     public parse(expression: string): ParseNode | null {
-        //return the children of startVar if a parse tree exists.
         const parseDFS = (startVar: string, start: number, end: number): ParseNode | null => {
             if(start > end) {
                 return null;
@@ -35,7 +34,7 @@ export class RegexParser implements Parser {
                 if(window.length === 1) {
                     //handle terminal replacements e.g. L->f
                     if(window === replacement) {
-                        return {value: startVar, children: [{value: replacement}]}
+                        return {value: startVar, children: [{value: replacement}]};
                     }
                     continue;
                 }
@@ -46,7 +45,7 @@ export class RegexParser implements Parser {
                     if(window[start] === first && window[end] === last) {
                         const child = parseDFS(replacement[1], start+1, end-1);
                         if(child) {
-                            return {value: startVar, children: [child]}
+                            return {value: startVar, children: [child]};
                         }
                     }
                 } else if(this.grammar.hasVariable(replacement)) { //handle single var replacements e.g. P->L
@@ -55,20 +54,26 @@ export class RegexParser implements Parser {
                         return {value: startVar, children: [child]}
                     }
                 } else if(replacement === 'I,I') { //handle A->I,I
-                    const commaIdx = window.indexOf(',');
-                    //TODO: what if mulitiple commas? write unit test for this
-                    if(commaIdx) {
-                        const leftChild = parseDFS('I', start, commaIdx-1);
-                        const rightChild = parseDFS('I', commaIdx+1, end);
-                        if(leftChild && rightChild) {
-                            return {value: startVar, children: [leftChild, rightChild]}
+                    for(let i = start; i < end; i++) {
+                        if(window[i] === ',') {
+                            const leftChild = parseDFS('I', start, i-1);
+                            if(!leftChild) {
+                                continue;
+                            }
+                            const rightChild = parseDFS('I', i+1, end);
+                            if(rightChild) {
+                                return {value: startVar, children: [leftChild, rightChild]};
+                            }
                         }
                     }
                 } else { //handle multiple var replacements i.e R->RO
                     for(let i = start; i < end; i++) {
                         const leftChild = parseDFS(replacement[0], start, i);
+                        if(!leftChild) {
+                            continue;
+                        }
                         const rightChild = parseDFS(replacement[1], i+1, end);
-                        if(leftChild && rightChild) {
+                        if(rightChild) {
                             return {value: startVar, children: [leftChild, rightChild]};
                         }
                     }
@@ -79,6 +84,25 @@ export class RegexParser implements Parser {
         }
         
         return parseDFS(this.grammar.startVariable, 0, expression.length-1);
+    }
+
+    private getEmptyCache(expression: string): Map<string, (ParseNode|null)[][]> {
+        const cache: Map<string, (ParseNode|null)[][]> = new Map();
+        this.grammar.variables.forEach(v => {
+            cache.set(v, this.getEmptyMatrix(expression.length));
+        });
+        return cache;
+    }
+
+    private getEmptyMatrix(dimension: number): (ParseNode|null)[][] {
+        const matrix: (ParseNode|null)[][] = [];
+        for(let i = 0; i < dimension; i++) {
+            matrix.push([]);
+            for(let j = 0; j < dimension; j++) {
+                matrix[i].push(null);
+            }
+        }
+        return matrix;
     }
 }
 

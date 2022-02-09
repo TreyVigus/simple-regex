@@ -1,6 +1,6 @@
 import { Grammar } from "./grammar.ts";
 import { Rule } from "./grammar.ts";
-import {asserts} from "../../deps.ts";
+import { asserts } from "../../deps.ts";
 
 const rules: Rule[] = [
     {variable: 'S', replacement: 'aXbY'},

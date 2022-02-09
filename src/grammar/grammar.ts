@@ -5,32 +5,36 @@ export type Rule = {
 
 export class Grammar {
     public rules: Rule[];
+    public terminals: Set<string>;
+    public variables: Set<string>;
     constructor(rules: Rule[]) {
         this.rules = rules;
+        this.variables = this.getVariables(rules);
+        this.terminals = this.getTerminals(rules, this.variables);
     }
 
     get startVariable(): string {
         return this.rules[0].variable;
     }
 
-    get variables(): Set<string> {
-        const s: Set<string> = new Set();
-        this.rules.forEach(rule => {
-            s.add(rule.variable);
+    getVariables(rules: Rule[]): Set<string> {
+        const variables: Set<string> = new Set();
+        rules.forEach(rule => {
+            variables.add(rule.variable);
         });
-        return s;
+        return variables;
     }
 
-    get terminals(): Set<string> {
-        const s: Set<string> = new Set();
-        this.rules.forEach(rule => {
+    getTerminals(rules: Rule[], variables: Set<string>): Set<string> {
+        const terminals:Set<string> = new Set();
+        rules.forEach(rule => {
             [...rule.replacement].forEach(char => {
-                if(!this.variables.has(char)) {
-                    s.add(char);
+                if(!variables.has(char)) {
+                    terminals.add(char);
                 }
             });
         });
-        return s;
+        return terminals;
     }
 
     public hasTerminal(char: string) {
