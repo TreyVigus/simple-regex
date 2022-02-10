@@ -54,21 +54,25 @@ Deno.test('(bc){2,3} should parse', () => {
     asserts.assertExists(root);
 });
 
-Deno.test('(bc){2,3} should parse', () => {
-    const root = parser.parse('(bc){2,3}');
-    asserts.assertExists(root);
-});
-
 Deno.test('(b{2}){1,2} should parse', () => {
     const root = parser.parse('(b{2}){1,2}');
     asserts.assertExists(root);
 });
 
-Deno.test('((ht){1,2}(gv){0,2}){2} should parse', () => {
-    const root = parser.parse('((ht){1,2}(gv){0,2}){2}');
+Deno.test('b{1,2}{4,5}{7,8}{1,2} should parse', () => {
+    const root = parser.parse('b{1,2}{4,5}{7,8}{1,2}');
     asserts.assertExists(root);
 });
 
+// Deno.test('((ht){1,2}(gv){0,2}) should parse', () => {
+//     const root = parser.parse('((ht){1,2}(gv){0,2})');
+//     asserts.assertExists(root);
+// });
+
+// Deno.test('((ht){1,2}(gv){0,2}){2} should parse', () => {
+//     const root = parser.parse('((ht){1,2}(gv){0,2}){2}');
+//     asserts.assertExists(root);
+// });
 
 /** The following tests should NOT parse */
 Deno.test('( should NOT parse', () => {
@@ -115,3 +119,8 @@ Deno.test('(b{2}){1,2 should NOT parse', () => {
     const root = parser.parse('(b{2}){1,2');
     asserts.assertEquals(root, null);
 });
+
+// Deno.test('b{1,2{4,5}{7,8}{1,2 should not parse', () => {
+//     const root = parser.parse('b{1,2{4,5}{7,8}{1,2');
+//     asserts.assertExists(root);
+// });

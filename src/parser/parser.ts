@@ -28,17 +28,17 @@ export class RegexParser implements Parser {
                 return null;
             }
 
-            const window = expression.slice(start, end+1);
+            const windowLen = end-start+1;
             const replacements = this.grammar.getReplacements(startVar);
 
             for(const replacement of replacements) {
                 if(this.grammar.hasTerminal(replacement)) { //handle terminal replacements e.g. L->f
-                    if(replacement === window) {
+                    if(windowLen === 1 && replacement === expression[start]) {
                         return {value: startVar, children: [{value: replacement}]};
                     }
                 } else if(['(R)', '[P]', '{A}'].includes(replacement)) {
                     const [first, last] = [replacement[0], replacement[replacement.length-1]];
-                    if(expression[start] === first && expression[end] === last && window.length > 1) {
+                    if(expression[start] === first && expression[end] === last && windowLen > 1) {
                         const child = parseDFS(replacement[1], start+1, end-1);
                         if(child) {
                             return {
