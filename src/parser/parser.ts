@@ -30,41 +30,51 @@ export class RegexParser implements Parser {
 
             const window = expression.slice(start, end+1);
             const replacements = this.grammar.getReplacements(startVar);
+
             for(const replacement of replacements) {
-                if(window.length === 1) {
-                    //handle terminal replacements e.g. L->f
-                    if(window === replacement) {
+                if(this.grammar.hasTerminal(replacement)) { //handle terminal replacements e.g. L->f
+                    if(replacement === window) {
                         return {value: startVar, children: [{value: replacement}]};
                     }
-                    continue;
-                }
-
-                //handle R->(R), R->[P], O->{A}, etc
-                const [first, last] = [replacement[0], replacement[replacement.length-1]];
-                if(this.grammar.hasTerminal(first) && this.grammar.hasTerminal(last)) {
-                    if(window[start] === first && window[end] === last) {
+                } else if(['(R)', '[P]', '{A}'].includes(replacement)) {
+                    const [first, last] = [replacement[0], replacement[replacement.length-1]];
+                    if(expression[start] === first && expression[end] === last && window.length > 1) {
                         const child = parseDFS(replacement[1], start+1, end-1);
                         if(child) {
-                            return {value: startVar, children: [child]};
+                            return {
+                                value: startVar, 
+                                children: [
+                                    child,
+                                    {value: first},
+                                    {value: last}
+                                ]
+                            };
                         }
                     }
-                } else if(this.grammar.hasVariable(replacement)) { //handle single var replacements e.g. P->L
-                    const child = parseDFS(replacement, start, end);
-                    if(child) {
-                        return {value: startVar, children: [child]}
-                    }
-                } else if(replacement === 'I,I') { //handle A->I,I
+                } else if(['I,I'].includes(replacement)) {
                     for(let i = start; i < end; i++) {
-                        if(window[i] === ',') {
+                        if(expression[i] === ',') {
                             const leftChild = parseDFS('I', start, i-1);
                             if(!leftChild) {
                                 continue;
                             }
                             const rightChild = parseDFS('I', i+1, end);
                             if(rightChild) {
-                                return {value: startVar, children: [leftChild, rightChild]};
+                                return {
+                                    value: startVar, 
+                                    children: [
+                                        leftChild, 
+                                        {value: ','},
+                                        rightChild
+                                    ]
+                                };
                             }
                         }
+                    }
+                } else if(this.grammar.hasVariable(replacement)) { //handle single var replacements e.g. P->L
+                    const child = parseDFS(replacement, start, end);
+                    if(child) {
+                        return {value: startVar, children: [child]}
                     }
                 } else { //handle multiple var replacements i.e R->RO
                     for(let i = start; i < end; i++) {

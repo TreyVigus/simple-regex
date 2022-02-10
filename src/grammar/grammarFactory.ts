@@ -12,6 +12,12 @@ export function getRegexGrammar(): Grammar {
     
         {variable: 'A', replacement: 'I'},
         {variable: 'A', replacement: 'I,I'},
+
+        {variable: 'P', replacement: 'L'},
+        {variable: 'P', replacement: 'LP'},
+    
+        {variable: 'I', replacement: 'D'},
+        {variable: 'I', replacement: 'DI'},
     
         {variable: 'D', replacement: '0'},
         {variable: 'D', replacement: '1'},
@@ -50,12 +56,6 @@ export function getRegexGrammar(): Grammar {
         {variable: 'L', replacement: 'x'},
         {variable: 'L', replacement: 'y'},
         {variable: 'L', replacement: 'z'},
-    
-        {variable: 'P', replacement: 'L'},
-        {variable: 'P', replacement: 'LP'},
-    
-        {variable: 'I', replacement: 'D'},
-        {variable: 'I', replacement: 'DI'},
     ];
     return new Grammar(rules);
 }
