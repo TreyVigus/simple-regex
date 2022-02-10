@@ -12,6 +12,7 @@ export interface Parser {
 
 export class RegexParser implements Parser {
     private grammar: Grammar;
+    private dummyParseNodeValue = 'DUMMY';
     constructor() {
         this.grammar = getRegexGrammar();
     }
@@ -23,25 +24,38 @@ export class RegexParser implements Parser {
      * TODO: this isn't generic enough to handle changes to the grammar rules.
      */
     public parse(expression: string): ParseNode | null {
+        const cache = this.getEmptyCache(expression);
+
         const parseDFS = (startVar: string, start: number, end: number): ParseNode | null => {
             if(start > end) {
                 return null;
             }
 
+            const matrix = cache.get(startVar)!;
+            if(matrix[start][end]) {
+                if(matrix[start][end]!.value === this.dummyParseNodeValue) {
+                    return null;
+                }
+                return matrix[start][end];
+            }
+
             const windowLen = end-start+1;
             const replacements = this.grammar.getReplacements(startVar);
+
+            let parentNode: ParseNode | null = null;
 
             for(const replacement of replacements) {
                 if(this.grammar.hasTerminal(replacement)) { //handle terminal replacements e.g. L->f
                     if(windowLen === 1 && replacement === expression[start]) {
-                        return {value: startVar, children: [{value: replacement}]};
+                        parentNode = {value: startVar, children: [{value: replacement}]};
+                        break;
                     }
                 } else if(['(R)', '[P]', '{A}'].includes(replacement)) {
                     const [first, last] = [replacement[0], replacement[replacement.length-1]];
                     if(expression[start] === first && expression[end] === last && windowLen > 1) {
                         const child = parseDFS(replacement[1], start+1, end-1);
                         if(child) {
-                            return {
+                            parentNode = {
                                 value: startVar, 
                                 children: [
                                     child,
@@ -49,6 +63,7 @@ export class RegexParser implements Parser {
                                     {value: last}
                                 ]
                             };
+                            break;
                         }
                     }
                 } else if(['I,I'].includes(replacement)) {
@@ -60,7 +75,7 @@ export class RegexParser implements Parser {
                             }
                             const rightChild = parseDFS('I', i+1, end);
                             if(rightChild) {
-                                return {
+                                parentNode = {
                                     value: startVar, 
                                     children: [
                                         leftChild, 
@@ -68,13 +83,15 @@ export class RegexParser implements Parser {
                                         rightChild
                                     ]
                                 };
+                                break;
                             }
                         }
                     }
                 } else if(this.grammar.hasVariable(replacement)) { //handle single var replacements e.g. P->L
                     const child = parseDFS(replacement, start, end);
                     if(child) {
-                        return {value: startVar, children: [child]}
+                        parentNode = {value: startVar, children: [child]};
+                        break;
                     }
                 } else { //handle multiple var replacements i.e R->RO
                     for(let i = start; i < end; i++) {
@@ -84,13 +101,16 @@ export class RegexParser implements Parser {
                         }
                         const rightChild = parseDFS(replacement[1], i+1, end);
                         if(rightChild) {
-                            return {value: startVar, children: [leftChild, rightChild]};
+                            parentNode = {value: startVar, children: [leftChild, rightChild]};
+                            break;
                         }
                     }
                 }
             }
 
-            return null;
+            //use a dummy to differentiate between null and not visited.
+            matrix[start][end] = parentNode ?? {value: this.dummyParseNodeValue};
+            return parentNode;
         }
         
         return parseDFS(this.grammar.startVariable, 0, expression.length-1);
