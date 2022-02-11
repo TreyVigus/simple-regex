@@ -11,7 +11,7 @@ export interface Parser {
 }
 
 export class RegexParser implements Parser {
-    private grammar: Grammar;
+    public grammar: Grammar;
     private dummyParseNodeValue = 'DUMMY';
     constructor() {
         this.grammar = getRegexGrammar();
@@ -58,8 +58,8 @@ export class RegexParser implements Parser {
                             parentNode = {
                                 value: startVar, 
                                 children: [
-                                    child,
                                     {value: first},
+                                    child,
                                     {value: last}
                                 ]
                             };
