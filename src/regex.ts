@@ -14,7 +14,7 @@ export class Regex {
     this.parser = new RegexParser();
     const parseRoot = this.parser.parse(expr);
     if(!parseRoot) {
-      throw 'unable to parse the expression';
+      throw new Error('invalid expression');
     }
     this.nfa = this.buildRegexMachine(parseRoot!, expr);
   }

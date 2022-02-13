@@ -254,3 +254,9 @@ tests.forEach((test) => {
     });
   });
 });
+
+Deno.test('throws exception when parsing invalid regex', () => {
+  asserts.assertThrows(() => {
+    new Regex('{y');
+  })
+});
