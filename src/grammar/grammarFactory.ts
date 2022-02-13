@@ -2,13 +2,17 @@ import { Grammar, Rule } from "./grammar.ts";
 
 export function getRegexGrammar(): Grammar {
     const rules: Rule[] = [
-        {variable: 'R', replacement: '(R)'},
-        {variable: 'R', replacement: 'RO'},
-        {variable: 'R', replacement: 'RR'},
-        {variable: 'R', replacement: '[P]'},
-        {variable: 'R', replacement: 'P'},
+        {variable: 'R', replacement: 'RNO'},
+        {variable: 'R', replacement: 'RN'},
+        {variable: 'R', replacement: 'N'},
+        {variable: 'R', replacement: 'NO'},
+
+        {variable: 'N', replacement: '[P]'},
+        {variable: 'N', replacement: '(R)'},
+        {variable: 'N', replacement: 'L'},
     
         {variable: 'O', replacement: '{A}'},
+        {variable: 'O', replacement: 'OO'},
     
         {variable: 'A', replacement: 'I'},
         {variable: 'A', replacement: 'I,I'},

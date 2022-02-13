@@ -1,6 +1,7 @@
 import { emptyMachine } from "./nfaFactory.ts";
 
 /** Single character string. */
+//TODO: add this and isLetter to own file
 export type Letter =
   | "a"
   | "b"
@@ -29,6 +30,10 @@ export type Letter =
   | "y"
   | "z"
   | "ε";
+
+export function isLetter(s: string): s is Letter {
+  return ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z', 'ε'].includes(s);
+}
 
 export type Transition = {
   letter: Letter;

@@ -1,9 +1,14 @@
 import { Grammar } from "../grammar/grammar.ts";
 import { getRegexGrammar } from "../grammar/grammarFactory.ts";
 
+//TODO: test start, end
+
 export type ParseNode = {
     value: string,
-    children?: ParseNode[]
+    children?: ParseNode[],
+    /** This node parses expression[start...end] */
+    start: number,
+    end: number
 }
 
 export interface Parser {
@@ -47,7 +52,11 @@ export class RegexParser implements Parser {
             for(const replacement of replacements) {
                 if(this.grammar.hasTerminal(replacement)) { //handle terminal replacements e.g. L->f
                     if(windowLen === 1 && replacement === expression[start]) {
-                        parentNode = {value: startVar, children: [{value: replacement}]};
+                        parentNode = {
+                            value: startVar, 
+                            children: [{value: replacement, start, end}],
+                            start, end
+                        };
                         break;
                     }
                 } else if(['(R)', '[P]', '{A}'].includes(replacement)) {
@@ -58,10 +67,11 @@ export class RegexParser implements Parser {
                             parentNode = {
                                 value: startVar, 
                                 children: [
-                                    {value: first},
+                                    {value: first, start: start, end: start},
                                     child,
-                                    {value: last}
-                                ]
+                                    {value: last, start: end, end: end}
+                                ],
+                                start, end
                             };
                             break;
                         }
@@ -79,9 +89,10 @@ export class RegexParser implements Parser {
                                     value: startVar, 
                                     children: [
                                         leftChild, 
-                                        {value: ','},
+                                        {value: ',', start: i, end: i},
                                         rightChild
-                                    ]
+                                    ],
+                                    start, end
                                 };
                                 break;
                             }
@@ -90,10 +101,14 @@ export class RegexParser implements Parser {
                 } else if(replacement.length === 1) { //handle single var replacements e.g. P->L
                     const child = parseDFS(replacement, start, end);
                     if(child) {
-                        parentNode = {value: startVar, children: [child]};
+                        parentNode = {
+                            value: startVar, 
+                            children: [child],
+                            start, end
+                        };
                         break;
                     }
-                } else { //handle multiple var replacements i.e R->RO
+                } else if(replacement.length === 2) { //handle 2 var replacements i.e R->RO
                     for(let i = start; i < end; i++) {
                         const leftChild = parseDFS(replacement[0], start, i);
                         if(!leftChild) {
@@ -101,18 +116,44 @@ export class RegexParser implements Parser {
                         }
                         const rightChild = parseDFS(replacement[1], i+1, end);
                         if(rightChild) {
-                            parentNode = {value: startVar, children: [leftChild, rightChild]};
+                            parentNode = {
+                                value: startVar, 
+                                children: [leftChild, rightChild],
+                                start, end
+                            };
                             break;
+                        }
+                    }
+                } else if(replacement.length === 3) {
+                    for(let i = start; i < end - 1; i++) {
+                        const leftChild = parseDFS(replacement[0], start, i);
+                        if(!leftChild) {
+                            continue;
+                        }
+                        for(let j = i+1; j < end; j++) {
+                            const middleChild = parseDFS(replacement[1], i+1, j);
+                            if(!middleChild) {
+                                continue;
+                            }
+
+                            const rightChild = parseDFS(replacement[2], j+1, end);
+                            if(rightChild) {
+                                parentNode = {
+                                    value: startVar, 
+                                    children: [leftChild, middleChild, rightChild],
+                                    start, end
+                                };
+                            }
                         }
                     }
                 }
             }
 
             //use a dummy to differentiate between null and not visited.
-            matrix[start][end] = parentNode ?? {value: this.dummyParseNodeValue};
+            matrix[start][end] = parentNode ?? {value: this.dummyParseNodeValue, start, end};
             return parentNode;
         }
-        
+
         return parseDFS(this.grammar.startVariable, 0, expression.length-1);
     }
 

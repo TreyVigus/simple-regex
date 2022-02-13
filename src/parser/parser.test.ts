@@ -21,6 +21,14 @@ Deno.test('[k]{0,2} should parse', () => {
     asserts.assertEquals('[k]{0,2}', leafValues.join(''));
 });
 
+Deno.test('[oz] should parse', () => {
+    const root = parser.parse('[oz]');
+    asserts.assertExists(root);
+    const leafValues: string[] = [];
+    getLeafValues(root, leafValues);
+    asserts.assertEquals('[oz]', leafValues.join(''));
+});
+
 Deno.test('h should parse', () => {
     const root = parser.parse('h');
     asserts.assertExists(root);
