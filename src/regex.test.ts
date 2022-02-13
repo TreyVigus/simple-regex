@@ -229,7 +229,7 @@ const tests: Test[] = [
       { s: "blhxyyhxyyyhxyyq", expected: false },
       { s: "blhxyhxyhxyhxyqq", expected: false },
       { s: "blhxyyhxyyyyqq", expected: false },
-    ]
+    ],
   },
   {
     expr: "[abc]xy{3}(q(efff){2}){3,4}",
@@ -239,10 +239,13 @@ const tests: Test[] = [
       { s: "bxyyyqefffefffqefffefffqefffefffqefffefff", expected: true },
       { s: "bcxyyyqefffefffqefffefffqefffefffqefffefff", expected: false },
       { s: "axyyyqeffffefffqefffefffqefffefffqefffefff", expected: false },
-      { s: "axyyyqefffefffqefffefffqefffefffqefffefffqefffefff", expected: false },
+      {
+        s: "axyyyqefffefffqefffefffqefffefffqefffefffqefffefff",
+        expected: false,
+      },
       { s: "axyyqefffefffqefffefffqefffefff", expected: false },
-    ]
-  }
+    ],
+  },
 ];
 
 tests.forEach((test) => {
@@ -252,5 +255,11 @@ tests.forEach((test) => {
       const res = regex.test(testCase.s);
       asserts.assertEquals(res, testCase.expected);
     });
+  });
+});
+
+Deno.test("throws exception when parsing invalid regex", () => {
+  asserts.assertThrows(() => {
+    new Regex("{y");
   });
 });

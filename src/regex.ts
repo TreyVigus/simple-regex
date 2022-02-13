@@ -1,114 +1,73 @@
-import { Letter, NFA } from "./NFA/nfa.ts";
+import { isLetter, Letter, NFA } from "./NFA/nfa.ts";
 import { emptyMachine, oneLetterMachine } from "./NFA/nfaFactory.ts";
+import { ParseNode, RegexParser } from "./parser/parser.ts";
+
 type Operator = {
   x: number;
   y: number;
 };
 
-/**
- * Accepted Symbols:
- * a-z
- * []
- * {x,y} where x,y are positive naturals.
- * ()
- */
 export class Regex {
+  private parser: RegexParser;
   private nfa: NFA;
   constructor(expr: string) {
-    this.nfa = this.buildNFA(expr, 0, expr.length - 1);
+    this.parser = new RegexParser();
+    const parseRoot = this.parser.parse(expr);
+    if (!parseRoot) {
+      throw new Error("invalid expression");
+    }
+    this.nfa = this.buildRegexMachine(parseRoot!, expr);
   }
 
   public test(s: string): boolean {
     return this.nfa.recognizes(s);
   }
 
-  /** Generate the NFA for substring s[start...end] */
-  private buildNFA(expr: string, start: number, end: number): NFA {
-    let M = emptyMachine();
-    let operator: Operator | undefined;
-    let i = end;
-    while (i >= start) {
-      const c = expr.charAt(i);
-      //new value for i at end of iteration
-      let nextIdx: number;
-      if (c === "}") {
-        const idx = this.findOpeningCurlyIdx(expr, i);
-        operator = this.formOperator(expr, idx, i);
-        nextIdx = idx - 1;
-      } else {
-        let Q: NFA;
-        if (c === ")") {
-          const idx = this.findOpeningParenIdx(expr, i);
-          Q = this.buildNFA(expr, idx + 1, i - 1);
-          nextIdx = idx - 1;
-        } else if (c === "]") {
-          const idx = this.findOpeningBracketIdx(expr, i);
-          Q = this.formBracketMachine(expr, idx, i);
-          nextIdx = idx - 1;
-        } else {
-          Q = oneLetterMachine(c as Letter);
-          nextIdx = i - 1;
-        }
-        if (operator) {
-          Q = this.applyOperator(Q, operator);
-          operator = undefined;
-        }
-        M = Q.concat(M);
-      }
-      i = nextIdx;
+  private buildRegexMachine(R: ParseNode, expr: string): NFA {
+    if (!R.children || R.children.length === 0) {
+      return isLetter(R.value) ? oneLetterMachine(R.value) : emptyMachine();
     }
-    return M;
+    const replacement = this.getReplacement(R);
+    if (replacement === "RNO") {
+      const operandMachine = this.buildOperandMachine(R.children[1], expr);
+      const operator = this.buildOperator(R.children[2], expr);
+      return this.buildRegexMachine(R.children[0], expr).concat(
+        this.applyOperator(operandMachine, operator),
+      );
+    } else if (replacement === "RN") {
+      return this.buildRegexMachine(R.children[0], expr).concat(
+        this.buildOperandMachine(R.children[1], expr),
+      );
+    } else if (replacement === "N") {
+      return this.buildOperandMachine(R.children[0], expr);
+    } else if (replacement === "NO") {
+      const operandMachine = this.buildOperandMachine(R.children[0], expr);
+      const operator = this.buildOperator(R.children[1], expr);
+      return this.applyOperator(operandMachine, operator);
+    }
+
+    return emptyMachine();
   }
 
-  private findOpeningCurlyIdx(expr: string, closingIdx: number): number {
-    for (let i = closingIdx - 1; i > -1; i--) {
-      if (expr.charAt(i) === "{") {
-        return i;
-      }
+  private buildOperandMachine(N: ParseNode, expr: string): NFA {
+    const replacement = this.getReplacement(N);
+    if (replacement === "[P]") {
+      const P = N.children![1];
+      return this.buildBracketMachine(expr, P.start, P.end);
+    } else if (replacement === "(R)") {
+      return this.buildRegexMachine(N.children![1], expr);
+    } else {
+      //replacement === 'L'
+      return this.buildLetterMachine(N.children![0]);
     }
-    return -1;
   }
 
-  /**
-   * start: index of opening {
-   * end: index of closing }
-   */
-  private formOperator(expr: string, start: number, end: number): Operator {
-    if (end - start + 1 === 3) {
-      const num = parseInt(expr.substring(start + 1, end));
-      return { x: num, y: num };
-    }
-    const commaIdx = expr.indexOf(",", start);
-    const x = parseInt(expr.substring(start + 1, commaIdx));
-    const y = parseInt(expr.substring(commaIdx + 1, end));
-    return { x, y };
-  }
-
-  private applyOperator(nfa: NFA, op: Operator): NFA {
-    let unionMachine = nfa.pow(op.x);
-    for (let i = op.x + 1; i <= op.y; i++) {
-      const powMachine = nfa.pow(i);
-      unionMachine = unionMachine.union(powMachine);
-    }
-    return unionMachine;
-  }
-
-  //TODO: same as findOpeningCurlyIdx
-  private findOpeningBracketIdx(expr: string, closingIdx: number): number {
-    for (let i = closingIdx - 1; i > -1; i--) {
-      if (expr.charAt(i) === "[") {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  private formBracketMachine(
+  private buildBracketMachine(
     expr: string,
-    openingBracketIdx: number,
-    closingBracketIndex: number,
+    start: number,
+    end: number,
   ): NFA {
-    const letters = expr.substring(openingBracketIdx + 1, closingBracketIndex)
+    const letters = expr.slice(start, end + 1)
       .split("");
     let unionMachine = oneLetterMachine(letters[0] as Letter);
     letters.slice(1).forEach((l) => {
@@ -118,18 +77,34 @@ export class Regex {
     return unionMachine;
   }
 
-  private findOpeningParenIdx(expr: string, closingIdx: number): number {
-    const stack = [];
-    for (let i = closingIdx; i > -1; i--) {
-      if (expr.charAt(i) === ")") {
-        stack.push(i);
-      } else if (expr.charAt(i) === "(") {
-        stack.pop();
-        if (stack.length === 0) {
-          return i;
-        }
-      }
+  //TODO: handle the O->OO replacement
+  private buildOperator(O: ParseNode, expr: string): Operator {
+    const A = O.children![1];
+    const x = this.buildNumber(A.children![0], expr);
+    if (A.children!.length === 1) {
+      return { x, y: x };
     }
-    return -1;
+    return { x, y: this.buildNumber(A.children![2], expr) };
+  }
+
+  private buildNumber(I: ParseNode, expr: string): number {
+    return parseInt(expr.substring(I.start, I.end + 1));
+  }
+
+  private buildLetterMachine(L: ParseNode): NFA {
+    return oneLetterMachine(this.getReplacement(L) as Letter);
+  }
+
+  private getReplacement(parentNode: ParseNode): string {
+    return parentNode.children!.map((c) => c.value).join("");
+  }
+
+  private applyOperator(nfa: NFA, op: Operator): NFA {
+    let unionMachine = nfa.pow(op.x);
+    for (let i = op.x + 1; i <= op.y; i++) {
+      const powMachine = nfa.pow(i);
+      unionMachine = unionMachine.union(powMachine);
+    }
+    return unionMachine;
   }
 }
