@@ -1,5 +1,5 @@
 import { asserts } from "../deps.ts";
-import { Regex } from "./regexNew.ts";
+import { Regex } from "./regex.ts";
 
 type Test = {
   expr: string;
