@@ -1,6 +1,6 @@
-import { Letter, NFA, isLetter } from "./NFA/nfa.ts";
+import { isLetter, Letter, NFA } from "./NFA/nfa.ts";
 import { emptyMachine, oneLetterMachine } from "./NFA/nfaFactory.ts";
-import { RegexParser, ParseNode } from "./parser/parser.ts";
+import { ParseNode, RegexParser } from "./parser/parser.ts";
 
 type Operator = {
   x: number;
@@ -13,8 +13,8 @@ export class Regex {
   constructor(expr: string) {
     this.parser = new RegexParser();
     const parseRoot = this.parser.parse(expr);
-    if(!parseRoot) {
-      throw new Error('invalid expression');
+    if (!parseRoot) {
+      throw new Error("invalid expression");
     }
     this.nfa = this.buildRegexMachine(parseRoot!, expr);
   }
@@ -24,19 +24,23 @@ export class Regex {
   }
 
   private buildRegexMachine(R: ParseNode, expr: string): NFA {
-    if(!R.children || R.children.length === 0) {
+    if (!R.children || R.children.length === 0) {
       return isLetter(R.value) ? oneLetterMachine(R.value) : emptyMachine();
     }
     const replacement = this.getReplacement(R);
-    if(replacement === 'RNO') {
+    if (replacement === "RNO") {
       const operandMachine = this.buildOperandMachine(R.children[1], expr);
       const operator = this.buildOperator(R.children[2], expr);
-      return this.buildRegexMachine(R.children[0], expr).concat(this.applyOperator(operandMachine, operator));
-    } else if(replacement === 'RN') {
-      return this.buildRegexMachine(R.children[0], expr).concat(this.buildOperandMachine(R.children[1], expr));
-    } else if(replacement === 'N') {
+      return this.buildRegexMachine(R.children[0], expr).concat(
+        this.applyOperator(operandMachine, operator),
+      );
+    } else if (replacement === "RN") {
+      return this.buildRegexMachine(R.children[0], expr).concat(
+        this.buildOperandMachine(R.children[1], expr),
+      );
+    } else if (replacement === "N") {
       return this.buildOperandMachine(R.children[0], expr);
-    } else if(replacement === 'NO') {
+    } else if (replacement === "NO") {
       const operandMachine = this.buildOperandMachine(R.children[0], expr);
       const operator = this.buildOperator(R.children[1], expr);
       return this.applyOperator(operandMachine, operator);
@@ -47,10 +51,10 @@ export class Regex {
 
   private buildOperandMachine(N: ParseNode, expr: string): NFA {
     const replacement = this.getReplacement(N);
-    if(replacement === '[P]') {
+    if (replacement === "[P]") {
       const P = N.children![1];
       return this.buildBracketMachine(expr, P.start, P.end);
-    } else if(replacement === '(R)') {
+    } else if (replacement === "(R)") {
       return this.buildRegexMachine(N.children![1], expr);
     } else {
       //replacement === 'L'
@@ -63,7 +67,7 @@ export class Regex {
     start: number,
     end: number,
   ): NFA {
-    const letters = expr.slice(start, end+1)
+    const letters = expr.slice(start, end + 1)
       .split("");
     let unionMachine = oneLetterMachine(letters[0] as Letter);
     letters.slice(1).forEach((l) => {
@@ -77,14 +81,14 @@ export class Regex {
   private buildOperator(O: ParseNode, expr: string): Operator {
     const A = O.children![1];
     const x = this.buildNumber(A.children![0], expr);
-    if(A.children!.length === 1) {
-      return {x, y: x};
-    } 
-    return {x, y: this.buildNumber(A.children![2], expr)};
+    if (A.children!.length === 1) {
+      return { x, y: x };
+    }
+    return { x, y: this.buildNumber(A.children![2], expr) };
   }
 
   private buildNumber(I: ParseNode, expr: string): number {
-    return parseInt(expr.substring(I.start, I.end+1));
+    return parseInt(expr.substring(I.start, I.end + 1));
   }
 
   private buildLetterMachine(L: ParseNode): NFA {
@@ -92,7 +96,7 @@ export class Regex {
   }
 
   private getReplacement(parentNode: ParseNode): string {
-    return parentNode.children!.map(c => c.value).join('');
+    return parentNode.children!.map((c) => c.value).join("");
   }
 
   private applyOperator(nfa: NFA, op: Operator): NFA {
