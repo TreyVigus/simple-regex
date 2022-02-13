@@ -87,7 +87,7 @@ export class RegexParser implements Parser {
                             }
                         }
                     }
-                } else if(this.grammar.hasVariable(replacement)) { //handle single var replacements e.g. P->L
+                } else if(replacement.length === 1) { //handle single var replacements e.g. P->L
                     const child = parseDFS(replacement, start, end);
                     if(child) {
                         parentNode = {value: startVar, children: [child]};

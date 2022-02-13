@@ -175,3 +175,23 @@ Deno.test('b{1,2{4,5}{7,8}{1,2 should not parse', () => {
     const root = parser.parse('b{1,2{4,5}{7,8}{1,2');
     asserts.assertEquals(root, null);
 });
+
+Deno.test('{1,2}abc should NOT parse', () => {
+    const root = parser.parse('{1,2}abc');
+    asserts.assertEquals(root, null);
+});
+
+Deno.test('x{a,b} should NOT parse', () => {
+    const root = parser.parse('x{a,b}');
+    asserts.assertEquals(root, null);
+});
+
+Deno.test('x{a,2} should NOT parse', () => {
+    const root = parser.parse('x{a,2}');
+    asserts.assertEquals(root, null);
+});
+
+Deno.test('x2 should NOT parse', () => {
+    const root = parser.parse('x2');
+    asserts.assertEquals(root, null);
+});
